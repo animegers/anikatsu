@@ -165,11 +165,9 @@ if (isset($_COOKIE['userID'])) {
 // Fetch server data
 $serverData = file_get_contents("$api/api/v2/hianime/episode/servers?animeEpisodeId=$EPISODEE_ID");
 $serverData = json_decode($serverData, true);
-
 // Initialize variables to store the URLs of the preferred servers
 $preferredServer = "";
 $serverLabel = "";
-
 // Check for raw server hd-1 first
 if (isset($serverData['data']['raw'])) {
     foreach ($serverData['data']['raw'] as $server) {
@@ -180,7 +178,6 @@ if (isset($serverData['data']['raw'])) {
         }
     }
 }
-
 // If raw server hd-1 is not found, check for sub server hd-1
 if (empty($preferredServer) && isset($serverData['data']['sub'])) {
     foreach ($serverData['data']['sub'] as $server) {
@@ -191,7 +188,6 @@ if (empty($preferredServer) && isset($serverData['data']['sub'])) {
         }
     }
 }
-
 // If neither raw nor sub server hd-1 is found, check for dub server hd-1
 if (empty($preferredServer) && isset($serverData['data']['dub'])) {
     foreach ($serverData['data']['dub'] as $server) {
@@ -202,7 +198,6 @@ if (empty($preferredServer) && isset($serverData['data']['dub'])) {
         }
     }
 }
-
 // Default to existing sub server if no hd-1 server is found
 if (empty($preferredServer)) {
     $preferredServer = "https://server1.animegers.com/sub.php?id={$epurl}&server=hd-1&category=sub";
@@ -211,57 +206,33 @@ if (empty($preferredServer)) {
 ?>
 
 <iframe name="iframe-to-load"
-    src="<?= $preferredServer ?>" frameborder="0"
+    src="<?=$preferredServer
+?>" frameborder="0"
     scrolling="no"
     allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture"
     allowfullscreen="true" webkitallowfullscreen="true"
     mozallowfullscreen="true"></iframe>
-<div class="server-notice"><strong>Currently watching on <?= $serverLabel ?></strong></div>
+<div class="server-notice" style="text-align: center;"><strong>Currently watching on <?=$serverLabel ?></strong></div>
                                     </div>
                                     <div class="player-controls">
-                                        <div class="pc-item pc-resize">
-                                            <a href="javascript:;" id="media-resize" class="btn btn-sm"><i class="fas fa-expand mr-1"></i>Expand</a>
-                                        </div>
                                         <div class="pc-item pc-toggle pc-light">
                                             <div id="turn-off-light" class="toggle-basic">
                                                 <span class="tb-name"><i class="fas fa-lightbulb mr-2"></i>Light</span>
                                                 <span class="tb-result"></span>
                                             </div>
                                         </div>
-                                        
-                                        <div class="pc-right">
-                                            <?php if ($getEpisode['prevEpText'] == "") {
-    echo "";
-} else { ?>
-                                                <div class="pc-item pc-control block-prev">
-                                                    <a class="btn btn-sm btn-prev" href="/watch<?=$getEpisode['prevEpLink'] ?>"><i class="fas fa-backward mr-2"></i>Prev</a>
-                                                </div>&nbsp;
-                                            <?php
-} ?>
-                                            <?php if ($getEpisode['nextEpText'] == "") {
-    echo "";
-} else { ?>
-                                                <div class="pc-item pc-control block-next">
-                                                    <a class="btn btn-sm btn-next" href="/watch<?=$getEpisode['nextEpLink'] ?>"><i class="fas fa-forward ml-2"></i>Next</a>
-                                                </div>
-                                            <?php
-} ?>
-                                            <div class="pc-item pc-fav" id="watch-list-content"></div>
-                                            
-                                        </div>
                                         <div class="clearfix"></div>
                                     </div>
                                 </div>
-<div class="player-servers">
+<?php
+// Display servers with active class for the selected server
+echo '<div class="player-servers">
     <div id="servers-content">
         <div class="ps_-status">
             <div class="content">
-                <div class="server-notice"><strong>Currently watching <b>Episode <?=$EPISODE_NUM ?></b></strong> Switch to alternate servers in case of error or contact us in our discord.</div>
+                <div class="server-notice"><strong>Currently watching <b>Episode ' . $EPISODE_NUM . '</b></strong> Switch to alternate servers in case of error or contact us in our discord.</div>
             </div>
-        </div>
-        <?php
-$serverData = file_get_contents("$api/api/v2/hianime/episode/servers?animeEpisodeId=$EPISODEE_ID");
-$serverData = json_decode($serverData, true);
+        </div>';
 if (isset($serverData['data']['sub']) && !empty($serverData['data']['sub'])) {
     echo '<div class="ps_-block ps_-block-sub servers-mixed">';
     echo '<div class="ps__-title"><i class="fas fa-server mr-2"></i>SUB SVR:</div>';
@@ -269,9 +240,10 @@ if (isset($serverData['data']['sub']) && !empty($serverData['data']['sub'])) {
     foreach ($serverData['data']['sub'] as $server) {
         $serverName = $server['serverName'];
         $serverId = $server['serverId'];
+        $activeClass = ($preferredServer == "https://server1.animegers.com/sub.php?id={$epurl}&server={$serverName}&category=sub") ? 'active' : '';
         echo "<div class='item'>
-                        <a id='server{$serverId}' href='https://server1.animegers.com/sub.php?id={$epurl}&server={$serverName}&category=sub' target='iframe-to-load' class='btn btn-server'>{$serverName}</a>
-                      </div>";
+                <a id='server{$serverId}' href='https://server1.animegers.com/sub.php?id={$epurl}&server={$serverName}&category=sub' target='iframe-to-load' class='btn btn-server {$activeClass}'>{$serverName}</a>
+              </div>";
     }
     echo '</div>';
     echo '<div class="clearfix"></div>';
@@ -285,9 +257,10 @@ if (isset($serverData['data']['dub']) && !empty($serverData['data']['dub'])) {
     foreach ($serverData['data']['dub'] as $server) {
         $serverName = $server['serverName'];
         $serverId = $server['serverId'];
+        $activeClass = ($preferredServer == "https://server2.animegers.com/dub.php?id={$epurl}&server={$serverName}&category=dub") ? 'active' : '';
         echo "<div class='item'>
-                        <a id='server{$serverId}' href='https://server2.animegers.com/dub.php?id={$epurl}&server={$serverName}&category=dub' target='iframe-to-load' class='btn btn-server'>{$serverName}</a>
-                      </div>";
+                <a id='server{$serverId}' href='https://server2.animegers.com/dub.php?id={$epurl}&server={$serverName}&category=dub' target='iframe-to-load' class='btn btn-server {$activeClass}'>{$serverName}</a>
+              </div>";
     }
     echo '</div>';
     echo '<div class="clearfix"></div>';
@@ -301,18 +274,19 @@ if (isset($serverData['data']['raw']) && !empty($serverData['data']['raw'])) {
     foreach ($serverData['data']['raw'] as $server) {
         $serverName = $server['serverName'];
         $serverId = $server['serverId'];
+        $activeClass = ($preferredServer == "https://server3.animegers.com/raw.php?id={$epurl}&server={$serverName}&category=raw") ? 'active' : '';
         echo "<div class='item'>
-                        <a id='server{$serverId}' href='https://server3.animegers.com/raw.php?id={$epurl}&server={$serverName}&category=raw' target='iframe-to-load' class='btn btn-server'>{$serverName}</a>
-                      </div>";
+                <a id='server{$serverId}' href='https://server3.animegers.com/raw.php?id={$epurl}&server={$serverName}&category=raw' target='iframe-to-load' class='btn btn-server {$activeClass}'>{$serverName}</a>
+              </div>";
     }
     echo '</div>';
     echo '<div class="clearfix"></div>';
     echo '<div id="source-guide"></div>';
     echo '</div>';
 }
+echo '</div>
+</div>';
 ?>
-    </div>
-</div>
 
                                 <div id="episodes-content">
                                     <div class="seasons-block seasons-block-max">
