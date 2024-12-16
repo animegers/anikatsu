@@ -161,12 +161,62 @@ if (isset($_COOKIE['userID'])) {
                                                 <div class="span3"></div>
                                             </div>
                                         </div>
-                                        <iframe name="iframe-to-load"
-                                            src="https://server1.animegers.com/sub.php?id=<?=$epurl ?>&server=hd-1&category=sub" frameborder="0"
-                                            scrolling="no"
-                                            allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture"
-                                            allowfullscreen="true" webkitallowfullscreen="true"
-                                            mozallowfullscreen="true"></iframe>
+                                        <?php
+// Fetch server data
+$serverData = file_get_contents("$api/api/v2/hianime/episode/servers?animeEpisodeId=$EPISODEE_ID");
+$serverData = json_decode($serverData, true);
+
+// Initialize variables to store the URLs of the preferred servers
+$preferredServer = "";
+$serverLabel = "";
+
+// Check for raw server hd-1 first
+if (isset($serverData['data']['raw'])) {
+    foreach ($serverData['data']['raw'] as $server) {
+        if ($server['serverName'] == "hd-1") {
+            $preferredServer = "https://server3.animegers.com/raw.php?id={$epurl}&server=hd-1&category=raw";
+            $serverLabel = "RAW SVR: hd-1";
+            break;
+        }
+    }
+}
+
+// If raw server hd-1 is not found, check for sub server hd-1
+if (empty($preferredServer) && isset($serverData['data']['sub'])) {
+    foreach ($serverData['data']['sub'] as $server) {
+        if ($server['serverName'] == "hd-1") {
+            $preferredServer = "https://server1.animegers.com/sub.php?id={$epurl}&server=hd-1&category=sub";
+            $serverLabel = "SUB SVR: hd-1";
+            break;
+        }
+    }
+}
+
+// If neither raw nor sub server hd-1 is found, check for dub server hd-1
+if (empty($preferredServer) && isset($serverData['data']['dub'])) {
+    foreach ($serverData['data']['dub'] as $server) {
+        if ($server['serverName'] == "hd-1") {
+            $preferredServer = "https://server2.animegers.com/dub.php?id={$epurl}&server=hd-1&category=dub";
+            $serverLabel = "DUB SVR: hd-1";
+            break;
+        }
+    }
+}
+
+// Default to existing sub server if no hd-1 server is found
+if (empty($preferredServer)) {
+    $preferredServer = "https://server1.animegers.com/sub.php?id={$epurl}&server=hd-1&category=sub";
+    $serverLabel = "SUB SVR: default";
+}
+?>
+
+<iframe name="iframe-to-load"
+    src="<?= $preferredServer ?>" frameborder="0"
+    scrolling="no"
+    allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture"
+    allowfullscreen="true" webkitallowfullscreen="true"
+    mozallowfullscreen="true"></iframe>
+<div class="server-notice"><strong>Currently watching on <?= $serverLabel ?></strong></div>
                                     </div>
                                     <div class="player-controls">
                                         <div class="pc-item pc-resize">
