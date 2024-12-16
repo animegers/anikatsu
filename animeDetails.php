@@ -100,12 +100,12 @@ $episodelist = $getAnimeep['data']['episodes'];
                                         <ol class="breadcrumb">
                                             <li itemprop="itemListElement" itemscope=""
                                                 itemtype="http://schema.org/ListItem" class="breadcrumb-item">
-                                                <a itemprop="item" href="/"><span itemprop="name">Home</span></a>
+                                                <a itemprop="item" href="/home"><span itemprop="name">Home</span></a>
                                                 <meta itemprop="position" content="1">
                                             </li>
                                             <li itemprop="itemListElement" itemscope=""
                                                 itemtype="http://schema.org/ListItem" class="breadcrumb-item">
-                                                <a itemprop="item" href="/anime"><span itemprop="name">Anime</span></a>
+                                                <a itemprop="item" href="/type/az-list"><span itemprop="name">Anime</span></a>
                                                 <meta itemprop="position" content="2">
                                             </li>
                                             <li itemprop="itemListElement" itemscope=""
@@ -234,25 +234,13 @@ $episodelist = $getAnimeep['data']['episodes'];
                                         <span class="item-head">Other names:</span> <span class="name"><?=$getAnime['data']['anime']['moreInfo']['japanese']?></span>
                                     </div>
                                     <div class="item item-title">
-                                        <span class="item-head">Language:</span> 
-                                        <span class="name">
-                                            <?php 
-                                                if ($getAnime['data']['anime']['stats']['episodes']['dub'] > 0){
-                                                    echo "Dubbed";
-                                                } else {
-                                                    echo "Subbed & ?";
-                                                }
-                                            ?>
-                                        </span>
-                                    </div>
-                                    <div class="item item-title">
                                         <span class="item-head">Episodes:</span> <span class="name"><?php echo count($episodelist)?></span>
                                     </div>
                                     <div class="item item-title">
                                         <span class="item-head">Release Year:</span> <span class="name"><?=$getAnime['data']['anime']['moreInfo']['aired']?></span>
                                     </div>
                                     <div class="item item-title">
-                                        <span class="item-head">Type:</span> <span class="name"><?=$getAnime['data']['anime']['stats']['type']?></span>
+                                        <span class="item-head">Type:</span> <span class="name"><?=$getAnime['data']['anime']['moreInfo']['premiered']?> Anime</span>
                                     </div>
                                     <div class="item item-title">
                                         <span class="item-head">Status:</span> <a href="<?php if ($getAnime['data']['anime']['moreInfo']['status'] == "Finished Airing") {echo "/status/completed";} else {echo "/status/ongoing";}?>"><?=$getAnime['data']['anime']['moreInfo']['status']?></a>
@@ -260,6 +248,9 @@ $episodelist = $getAnimeep['data']['episodes'];
                                     <div class="item item-list">
                                         <span class="item-head">Genres:</span> <?php foreach($getAnime['data']['anime']['moreInfo']['genres'] as $genre) { ?><a href="<?=$websiteUrl?>/genre/<?php $genreUrl = strtolower($genre); echo str_replace(" ","+", $genreUrl);?>"><?=$genre?></a><?php } ?>
                                     </div>
+                                    <div class="item item-title">
+            <span class="item-head">Studios:</span> <span class="name"><?=$getAnime['data']['anime']['moreInfo']['studios']?></span>
+        </div>
                                     <div class="film-text w-hide"><?=$websiteTitle?> is a site to watch online anime like <strong><?=$getAnime['data']['anime']['info']['name']?></strong> online, or you can even watch <strong><?=$getAnime['data']['anime']['moreInfo']['synonyms']?></strong> in HD quality</div>
                                 </div>
                                 <div class="clearfix"></div>
