@@ -9,7 +9,7 @@ $animeID = explode('-episode-', $url) [0];
 $slug = explode('-', $animeID);
 $dub = (end($slug) == 'dub') ? "dub" : "sub";
 // Create $epurl combining anime ID and episode parameter
-$requestedEpisodeId = $queryParams['ep']??null; // Get the 'ep' parameter
+$requestedEpisodeId = $queryParams['ep'] ?? null; // Get the 'ep' parameter
 $epurl = $requestedEpisodeId ? "$animeID?ep=$requestedEpisodeId" : $animeID;
 $getAnime = file_get_contents("$api/api/v2/hianime/anime/$animeID");
 $getAnime = json_decode($getAnime, true);
@@ -36,9 +36,13 @@ $ANIME_RELEASED = $anime['aired'];
 $ANIME_NAME = $anime['name'];
 $ANIME_IMAGE = $anime['poster'];
 $ANIME_TYPE = $anime['stats']['type'];
-$pageID = $url;
+
+// Updated line to include query parameters in pageID
+$pageID = ltrim($parts['path'], '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+
 $CurPageURL = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $pageUrl = $CurPageURL;
+
 // Check for page view count
 $query = mysqli_query($conn, "SELECT * FROM `pageview` WHERE pageID = '$pageID'");
 $rows = mysqli_fetch_array($query);
@@ -49,7 +53,6 @@ if (empty($counter)) {
     mysqli_query($conn, "INSERT INTO `pageview` (pageID, totalview, like_count, dislike_count, animeID) VALUES('$pageID', '$counter', '1', '0', '$animeID')");
     header('Location: ' . $pageUrl); // Redirect to refresh and prevent re-submit
     exit; // Ensure no further execution
-    
 } else {
     $counter++;
     mysqli_query($conn, "UPDATE `pageview` SET totalview = '$counter' WHERE pageID = '$pageID'");
