@@ -1,13 +1,15 @@
 <?php
 require ('./_config.php');
 session_start();
+
 $parts = parse_url($_SERVER['REQUEST_URI']);
 parse_str($parts['query'], $queryParams); // Parse the query string to get episode parameter
 $page_url = explode('/', $parts['path']);
 $url = $page_url[count($page_url) - 1];
-$animeID = explode('-episode-', $url) [0];
+$animeID = explode('-episode-', $url)[0];
 $slug = explode('-', $animeID);
 $dub = (end($slug) == 'dub') ? "dub" : "sub";
+
 // Create $epurl combining anime ID and episode parameter
 $requestedEpisodeId = $queryParams['ep'] ?? null; // Get the 'ep' parameter
 $epurl = $requestedEpisodeId ? "$animeID?ep=$requestedEpisodeId" : $animeID;
@@ -15,10 +17,12 @@ $getAnime = file_get_contents("$api/api/v2/hianime/anime/$animeID");
 $getAnime = json_decode($getAnime, true);
 $getEpisode = file_get_contents("$api/api/v2/hianime/anime/$animeID/episodes");
 $getEpisode = json_decode($getEpisode, true);
+
 if (!$getAnime['success'] || !$getEpisode['success']) {
     header('Location: https://www.animegers.com/home');
     exit;
 }
+
 $anime = $getAnime['data']['anime']['info'];
 $episodeList = $getEpisode['data']['episodes'];
 $EPISODE_NUM = "Unknown";
@@ -40,27 +44,23 @@ $ANIME_TYPE = $anime['stats']['type'];
 // Updated line to include query parameters in pageID
 $pageID = ltrim($parts['path'], '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
 
-$CurPageURL = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$pageUrl = $CurPageURL;
-
 // Check for page view count
 $query = mysqli_query($conn, "SELECT * FROM `pageview` WHERE pageID = '$pageID'");
 $rows = mysqli_fetch_array($query);
 $counter = $rows['totalview'];
 $id = $rows['id'];
+
 if (empty($counter)) {
     $counter = 1;
     mysqli_query($conn, "INSERT INTO `pageview` (pageID, totalview, like_count, dislike_count, animeID) VALUES('$pageID', '$counter', '1', '0', '$animeID')");
-    header('Location: ' . $pageUrl); // Redirect to refresh and prevent re-submit
-    exit; // Ensure no further execution
 } else {
     $counter++;
     mysqli_query($conn, "UPDATE `pageview` SET totalview = '$counter' WHERE pageID = '$pageID'");
 }
-// Get like and dislike counts
-$like_count = $rows['like_count'];
-$dislike_count = $rows['dislike_count'];
-$totalVotes = $like_count + $dislike_count;
+
+$CurPageURL = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$pageUrl = $CurPageURL;
+
 // Handle user history
 if (isset($_COOKIE['userID'])) {
     $userID = $_COOKIE['userID'];
